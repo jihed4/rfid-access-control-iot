@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8" />
+    <title>Door Lock System Dashboard</title>
+    <style>
+      :root {
+        --bg: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-main: #111827;
+        --text-sub: #6b7280;
+        --border-soft: #e5e7eb;
+        --accent: #3b82f6;
+        --accent-soft: #dbeafe;
+        --granted: #16a34a;
+        --denied: #f97316;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #e0f2fe 0, #f3f4f6 40%, #f9fafb 100%);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        padding: 24px 16px 12px;
+      }
+
+      .wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+        text-align: center;
+      }
+
+      main {
+        padding: 0 16px 32px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+        margin: 18px 0 22px;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 14px 16px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        border: 1px solid var(--border-soft);
+      }
+
+      .card-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-sub);
+        margin-bottom: 4px;
+      }
+
+      .card-value {
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .card-sub {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-top: 2px;
+      }
+
+      .filters-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .small-label {
+        font-size: 11px;
+        color: var(--text-sub);
+      }
+
+      select,
+      button {
+        background: #ffffff;
+        border: 1px solid var(--border-soft);
+        border-radius: 999px;
+        color: var(--text-main);
+        padding: 6px 12px;
+        font-size: 13px;
+        outline: none;
+      }
+
+      select:focus,
+      button:focus {
+        box-shadow: 0 0 0 2px var(--accent-soft);
+        border-color: var(--accent);
+      }
+
+      button {
+        cursor: pointer;
+        font-weight: 500;
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      button:hover {
+        filter: brightness(1.05);
+      }
+
+      .table-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        padding: 8px 12px 4px;
+      }
+
+      .table-header-text {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin: 2px 0 6px;
+      }
+
+      .table-container {
+        max-height: 420px;
+        overflow: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: #ffffff;
+      }
+
+      th,
+      td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #f3f4f6;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-sub);
+        background: #f9fafb;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      tr:nth-child(even) td {
+        background: #fbfdff;
+      }
+
+      .status-granted {
+        color: var(--granted);
+        font-weight: 600;
+      }
+
+      .status-denied {
+        color: var(--denied);
+        font-weight: 600;
+      }
+
+      @media (max-width: 700px) {
+        th:nth-child(2),
+        td:nth-child(2),
+        th:nth-child(5),
+        td:nth-child(5) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Door Lock System Dashboard</h1>
+      </header>
+
+      <main>
+        <div class="cards">
+          <div class="card">
+            <div class="card-title">Total events (loaded)</div>
+            <div class="card-value" id="stat-total">0</div>
+            <div class="card-sub" id="stat-total-sub">–</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Granted</div>
+            <div class="card-value" id="stat-granted">0</div>
+            <div class="card-sub" id="stat-granted-sub">–</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Denied</div>
+            <div class="card-value" id="stat-denied">0</div>
+            <div class="card-sub" id="stat-denied-sub">–</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Unique users</div>
+            <div class="card-value" id="stat-users">0</div>
+            <div class="card-sub" id="stat-users-sub">–</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="filters-row">
+            <div class="filters">
+              <span class="small-label">Status:</span>
+              <select id="filter-status">
+                <option value="all">All</option>
+                <option value="GRANTED">Granted</option>
+                <option value="DENIED">Denied</option>
+              </select>
+
+              <span class="small-label">Door:</span>
+              <select id="filter-door">
+                <option value="all">All</option>
+              </select>
+            </div>
+
+            <button id="btn-refresh">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="table-header-text">
+            Latest access events (max 100).
+          </div>
+
+          <div class="table-container">
+            <table id="log-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>UID</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Door</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Base URL of this web app (Apps Script fills it)
+      const BASE_URL = '<?= ScriptApp.getService().getUrl() ?>';
+
+      let allLogs = [];
+
+      async function fetchJSON(query) {
+        const res = await fetch(BASE_URL + query);
+        if (!res.ok) {
+          console.error("HTTP error", res.status);
+          return [];
+        }
+        try {
+          return await res.json();
+        } catch (e) {
+          console.error("Failed to parse JSON", e);
+          return [];
+        }
+      }
+
+      async function loadData() {
+        try {
+          const [logs, users] = await Promise.all([
+            fetchJSON("?action=get_logs&limit=100"),
+            fetchJSON("?action=get_users"),
+          ]);
+          allLogs = logs || [];
+          renderFilters(allLogs);
+          renderStats(allLogs);
+          renderTable();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderFilters(logs) {
+        const doorSelect = document.getElementById("filter-door");
+        const doors = new Set();
+        logs.forEach((l) => {
+          if (l.door_id) doors.add(l.door_id);
+        });
+
+        doorSelect.innerHTML = "";
+        const optAll = document.createElement("option");
+        optAll.value = "all";
+        optAll.textContent = "All";
+        doorSelect.appendChild(optAll);
+        doors.forEach((d) => {
+          const o = document.createElement("option");
+          o.value = d;
+          o.textContent = d;
+          doorSelect.appendChild(o);
+        });
+      }
+
+      function renderStats(logs) {
+        const total = logs.length;
+        let granted = 0;
+        let denied = 0;
+        const users = new Set();
+
+        logs.forEach((l) => {
+          if (l.status === "GRANTED") granted++;
+          else if (l.status === "DENIED") denied++;
+          if (l.uid) users.add(l.uid);
+        });
+
+        document.getElementById("stat-total").textContent = total;
+        document.getElementById("stat-granted").textContent = granted;
+        document.getElementById("stat-denied").textContent = denied;
+        document.getElementById("stat-users").textContent = users.size;
+
+        document.getElementById("stat-total-sub").textContent =
+          "Last " + total + " events loaded";
+        document.getElementById("stat-granted-sub").textContent =
+          total > 0 ? ((granted / total) * 100).toFixed(1) + "% of events" : "–";
+        document.getElementById("stat-denied-sub").textContent =
+          total > 0 ? ((denied / total) * 100).toFixed(1) + "% of events" : "–";
+        document.getElementById("stat-users-sub").textContent =
+          "Unique UIDs in this list";
+      }
+
+      function applyFilters() {
+        const statusFilter = document.getElementById("filter-status").value;
+        const doorFilter = document.getElementById("filter-door").value;
+
+        return allLogs.filter((l) => {
+          let ok = true;
+          if (statusFilter !== "all") ok = ok && l.status === statusFilter;
+          if (doorFilter !== "all") ok = ok && l.door_id === doorFilter;
+          return ok;
+        });
+      }
+
+      function renderTable() {
+        const tbody = document.querySelector("#log-table tbody");
+        tbody.innerHTML = "";
+        const rows = applyFilters();
+
+        rows.forEach((l) => {
+          const tr = document.createElement("tr");
+
+          let dateStr = "";
+          try {
+            const d = new Date(l.timestamp);
+            if (!isNaN(d.getTime())) {
+              const pad = (n) => (n < 10 ? "0" + n : "" + n);
+              dateStr =
+                d.getFullYear() +
+                "-" +
+                pad(d.getMonth() + 1) +
+                "-" +
+                pad(d.getDate()) +
+                " " +
+                pad(d.getHours()) +
+                ":" +
+                pad(d.getMinutes());
+            } else {
+              dateStr = l.timestamp;
+            }
+          } catch (e) {
+            dateStr = l.timestamp;
+          }
+
+          const tdTime = document.createElement("td");
+          const tdUid = document.createElement("td");
+          const tdName = document.createElement("td");
+          const tdStatus = document.createElement("td");
+          const tdDoor = document.createElement("td");
+
+          tdTime.textContent = dateStr;
+          tdUid.textContent = l.uid || "";
+          tdName.textContent = l.name || "";
+          tdDoor.textContent = l.door_id || "";
+
+          const spanStatus = document.createElement("span");
+          spanStatus.textContent = l.status || "";
+          if (l.status === "GRANTED") spanStatus.className = "status-granted";
+          else if (l.status === "DENIED") spanStatus.className = "status-denied";
+          tdStatus.appendChild(spanStatus);
+
+          tr.appendChild(tdTime);
+          tr.appendChild(tdUid);
+          tr.appendChild(tdName);
+          tr.appendChild(tdStatus);
+          tr.appendChild(tdDoor);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("filter-status")
+        .addEventListener("change", renderTable);
+      document.getElementById("filter-door")
+        .addEventListener("change", renderTable);
+      document.getElementById("btn-refresh")
+        .addEventListener("click", loadData);
+
+      window.addEventListener("load", loadData);
+    </script>
+  </body>
+</html>
